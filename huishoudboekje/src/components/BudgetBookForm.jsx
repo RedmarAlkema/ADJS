@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { getErrorMessage, validateBudgetBook } from '../utils/validation'
 
 const initialValues = {
   name: '',
@@ -28,8 +29,9 @@ export function BudgetBookForm({ selectedBook, onCancel, onSubmit }) {
     event.preventDefault()
     setError('')
 
-    if (!values.name.trim()) {
-      setError('Vul minimaal een naam in.')
+    const validationError = validateBudgetBook(values)
+    if (validationError) {
+      setError(validationError)
       return
     }
 
@@ -39,7 +41,9 @@ export function BudgetBookForm({ selectedBook, onCancel, onSubmit }) {
       await onSubmit(values)
       setValues(initialValues)
     } catch (submitError) {
-      setError(submitError.message)
+      setError(
+        getErrorMessage(submitError, 'Huishoudboekje opslaan is mislukt.'),
+      )
     } finally {
       setSaving(false)
     }

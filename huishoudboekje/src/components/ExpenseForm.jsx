@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { expenseCategories } from '../utils/categories'
 import { todayAsInputValue } from '../utils/formatters'
+import { getErrorMessage, validateExpense } from '../utils/validation'
 
 const initialValues = {
   title: '',
@@ -26,13 +27,9 @@ export function ExpenseForm({ disabled, onSubmit }) {
     event.preventDefault()
     setError('')
 
-    if (!values.title.trim()) {
-      setError('Vul een omschrijving in.')
-      return
-    }
-
-    if (!values.amount || Number(values.amount) <= 0) {
-      setError('Vul een bedrag groter dan 0 in.')
+    const validationError = validateExpense(values)
+    if (validationError) {
+      setError(validationError)
       return
     }
 
@@ -45,7 +42,7 @@ export function ExpenseForm({ disabled, onSubmit }) {
         date: todayAsInputValue(),
       })
     } catch (submitError) {
-      setError(submitError.message)
+      setError(getErrorMessage(submitError, 'Uitgave opslaan is mislukt.'))
     } finally {
       setSaving(false)
     }

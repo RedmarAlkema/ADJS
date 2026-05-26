@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { signInAsGuest, signOut, subscribeToAuth } from '../services/authService'
+import { getErrorMessage } from '../utils/validation'
 
 export function useAuth() {
   const [user, setUser] = useState(null)
@@ -19,7 +20,7 @@ export function useAuth() {
     try {
       await signInAsGuest()
     } catch (firebaseError) {
-      setError(firebaseError.message)
+      setError(getErrorMessage(firebaseError, 'Inloggen is mislukt.'))
     }
   }
 
@@ -29,7 +30,7 @@ export function useAuth() {
     try {
       await signOut()
     } catch (firebaseError) {
-      setError(firebaseError.message)
+      setError(getErrorMessage(firebaseError, 'Uitloggen is mislukt.'))
     }
   }
 

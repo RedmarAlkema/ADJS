@@ -9,4 +9,8 @@ describe('formatters', () => {
   it('formatteert datums voor Nederlandse gebruikers', () => {
     expect(formatDate('2026-05-26')).toContain('2026')
   })
+
+  it('geeft een lege tekst terug zonder datum', () => {
+    expect(formatDate('')).toBe('')
+  })
 })

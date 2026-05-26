@@ -4,6 +4,7 @@ import {
   deleteExpense,
   subscribeToExpenses,
 } from '../services/expenseService'
+import { getErrorMessage, validateExpense } from '../utils/validation'
 
 export function useExpenses(book, user) {
   const [expenses, setExpenses] = useState([])
@@ -23,7 +24,7 @@ export function useExpenses(book, user) {
         setLoading(false)
       },
       (firebaseError) => {
-        setError(firebaseError.message)
+        setError(getErrorMessage(firebaseError, 'Uitgaven laden is mislukt.'))
         setLoading(false)
       },
     )
@@ -33,22 +34,45 @@ export function useExpenses(book, user) {
     setError('')
 
     if (!book || !user) {
-      setError('Kies eerst een huishoudboekje.')
-      return
+      const message = 'Kies eerst een huishoudboekje.'
+      setError(message)
+      throw new Error(message)
     }
 
-    await createExpense(book, user.uid, values)
+    const validationError = validateExpense(values)
+    if (validationError) {
+      setError(validationError)
+      throw new Error(validationError)
+    }
+
+    try {
+      await createExpense(book, user.uid, values)
+    } catch (firebaseError) {
+      const message = getErrorMessage(
+        firebaseError,
+        'Uitgave opslaan is mislukt.',
+      )
+      setError(message)
+      throw new Error(message, { cause: firebaseError })
+    }
   }
 
   async function removeExpense(expense) {
     setError('')
 
-    if (expense.ownerId !== user.uid) {
-      setError('Je kunt alleen je eigen uitgaven verwijderen.')
+    if (!user || expense.ownerId !== user.uid) {
+      const message = 'Je kunt alleen je eigen uitgaven verwijderen.'
+      setError(message)
       return
     }
 
-    await deleteExpense(expense)
+    try {
+      await deleteExpense(expense)
+    } catch (firebaseError) {
+      setError(
+        getErrorMessage(firebaseError, 'Uitgave verwijderen is mislukt.'),
+      )
+    }
   }
 
   return {

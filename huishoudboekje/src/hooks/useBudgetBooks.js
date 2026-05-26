@@ -5,6 +5,7 @@ import {
   subscribeToActiveBudgetBooks,
   updateBudgetBook,
 } from '../services/budgetBookService'
+import { getErrorMessage, validateBudgetBook } from '../utils/validation'
 
 export function useBudgetBooks(user) {
   const [budgetBooks, setBudgetBooks] = useState([])
@@ -23,7 +24,12 @@ export function useBudgetBooks(user) {
         setLoading(false)
       },
       (firebaseError) => {
-        setError(firebaseError.message)
+        setError(
+          getErrorMessage(
+            firebaseError,
+            'Huishoudboekjes laden is mislukt.',
+          ),
+        )
         setLoading(false)
       },
     )
@@ -33,33 +39,66 @@ export function useBudgetBooks(user) {
     setError('')
 
     if (!user) {
-      setError('Je moet ingelogd zijn om een huishoudboekje op te slaan.')
-      return null
+      const message = 'Je moet ingelogd zijn om een huishoudboekje op te slaan.'
+      setError(message)
+      throw new Error(message)
+    }
+
+    const validationError = validateBudgetBook(values)
+    if (validationError) {
+      setError(validationError)
+      throw new Error(validationError)
     }
 
     if (selectedBook) {
       if (selectedBook.ownerId !== user.uid) {
-        setError('Je kunt alleen eigen huishoudboekjes aanpassen.')
-        return null
+        const message = 'Je kunt alleen eigen huishoudboekjes aanpassen.'
+        setError(message)
+        throw new Error(message)
       }
 
-      await updateBudgetBook(selectedBook, values)
+      try {
+        await updateBudgetBook(selectedBook, values)
+      } catch (firebaseError) {
+        const message = getErrorMessage(
+          firebaseError,
+          'Huishoudboekje aanpassen is mislukt.',
+        )
+        setError(message)
+        throw new Error(message, { cause: firebaseError })
+      }
+
       return selectedBook.id
     }
 
-    const createdBook = await createBudgetBook(user.uid, values)
-    return createdBook.id
+    try {
+      const createdBook = await createBudgetBook(user.uid, values)
+      return createdBook.id
+    } catch (firebaseError) {
+      const message = getErrorMessage(
+        firebaseError,
+        'Huishoudboekje aanmaken is mislukt.',
+      )
+      setError(message)
+      throw new Error(message, { cause: firebaseError })
+    }
   }
 
   async function archiveBook(book) {
     setError('')
 
-    if (book.ownerId !== user.uid) {
+    if (!user || book.ownerId !== user.uid) {
       setError('Je kunt alleen eigen huishoudboekjes archiveren.')
       return
     }
 
-    await archiveBudgetBook(book)
+    try {
+      await archiveBudgetBook(book)
+    } catch (firebaseError) {
+      setError(
+        getErrorMessage(firebaseError, 'Huishoudboekje archiveren is mislukt.'),
+      )
+    }
   }
 
   return {
