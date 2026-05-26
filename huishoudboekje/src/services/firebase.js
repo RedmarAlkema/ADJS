@@ -1,5 +1,7 @@
 import { initializeApp } from 'firebase/app'
 import { getAnalytics, isSupported } from 'firebase/analytics'
+import { getAuth } from 'firebase/auth'
+import { getFirestore } from 'firebase/firestore'
 
 const firebaseConfig = {
   apiKey: 'AIzaSyCvEsNLzaIV1QptIo8QRQ6zv8sSTIskF9M',
@@ -12,6 +14,8 @@ const firebaseConfig = {
 }
 
 export const app = initializeApp(firebaseConfig)
+export const auth = getAuth(app)
+export const db = getFirestore(app)
 
 export const analytics = isSupported().then((supported) =>
   supported ? getAnalytics(app) : null,
