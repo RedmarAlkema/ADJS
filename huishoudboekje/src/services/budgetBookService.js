@@ -27,14 +27,22 @@ function mapBudgetBook(documentSnapshot) {
 }
 
 export function subscribeToActiveBudgetBooks(ownerId, onChange, onError) {
-  const activeBooksQuery = query(
+  return subscribeToBudgetBooks(ownerId, false, onChange, onError)
+}
+
+export function subscribeToArchivedBudgetBooks(ownerId, onChange, onError) {
+  return subscribeToBudgetBooks(ownerId, true, onChange, onError)
+}
+
+function subscribeToBudgetBooks(ownerId, archived, onChange, onError) {
+  const booksQuery = query(
     budgetBooksCollection,
     where('ownerId', '==', ownerId),
-    where('archived', '==', false),
+    where('archived', '==', archived),
   )
 
   return onSnapshot(
-    activeBooksQuery,
+    booksQuery,
     (snapshot) =>
       onChange(
         snapshot.docs
@@ -67,6 +75,13 @@ export function updateBudgetBook(book, values) {
 export function archiveBudgetBook(book) {
   return updateDoc(doc(db, 'budgetBooks', book.id), {
     archived: true,
+    updatedAt: serverTimestamp(),
+  })
+}
+
+export function restoreBudgetBook(book) {
+  return updateDoc(doc(db, 'budgetBooks', book.id), {
+    archived: false,
     updatedAt: serverTimestamp(),
   })
 }

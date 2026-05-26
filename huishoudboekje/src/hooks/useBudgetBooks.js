@@ -3,12 +3,15 @@ import {
   archiveBudgetBook,
   createBudgetBook,
   subscribeToActiveBudgetBooks,
+  subscribeToArchivedBudgetBooks,
+  restoreBudgetBook,
   updateBudgetBook,
 } from '../services/budgetBookService'
 import { getErrorMessage, validateBudgetBook } from '../utils/validation'
 
 export function useBudgetBooks(user) {
   const [budgetBooks, setBudgetBooks] = useState([])
+  const [archivedBooks, setArchivedBooks] = useState([])
   const [loading, setLoading] = useState(Boolean(user))
   const [error, setError] = useState('')
 
@@ -17,11 +20,21 @@ export function useBudgetBooks(user) {
       return undefined
     }
 
-    return subscribeToActiveBudgetBooks(
+    let activeLoaded = false
+    let archiveLoaded = false
+
+    function finishLoading() {
+      if (activeLoaded && archiveLoaded) {
+        setLoading(false)
+      }
+    }
+
+    const unsubscribeActiveBooks = subscribeToActiveBudgetBooks(
       user.uid,
       (books) => {
         setBudgetBooks(books)
-        setLoading(false)
+        activeLoaded = true
+        finishLoading()
       },
       (firebaseError) => {
         setError(
@@ -33,6 +46,26 @@ export function useBudgetBooks(user) {
         setLoading(false)
       },
     )
+
+    const unsubscribeArchivedBooks = subscribeToArchivedBudgetBooks(
+      user.uid,
+      (books) => {
+        setArchivedBooks(books)
+        archiveLoaded = true
+        finishLoading()
+      },
+      (firebaseError) => {
+        setError(
+          getErrorMessage(firebaseError, 'Archief laden is mislukt.'),
+        )
+        setLoading(false)
+      },
+    )
+
+    return () => {
+      unsubscribeActiveBooks()
+      unsubscribeArchivedBooks()
+    }
   }, [user])
 
   async function saveBudgetBook(values, selectedBook) {
@@ -101,11 +134,30 @@ export function useBudgetBooks(user) {
     }
   }
 
+  async function restoreBook(book) {
+    setError('')
+
+    if (!user || book.ownerId !== user.uid) {
+      setError('Je kunt alleen eigen huishoudboekjes herstellen.')
+      return
+    }
+
+    try {
+      await restoreBudgetBook(book)
+    } catch (firebaseError) {
+      setError(
+        getErrorMessage(firebaseError, 'Huishoudboekje herstellen is mislukt.'),
+      )
+    }
+  }
+
   return {
     budgetBooks: user ? budgetBooks : [],
+    archivedBooks: user ? archivedBooks : [],
     loading: Boolean(user) && loading,
     error,
     saveBudgetBook,
     archiveBook,
+    restoreBook,
   }
 }

@@ -11,7 +11,7 @@ service cloud.firestore {
     }
 
     match /budgetBooks/{bookId} {
-      allow read: if owns(resource.data) && resource.data.archived == false;
+      allow read: if owns(resource.data);
 
       allow create: if signedIn()
         && request.resource.data.ownerId == request.auth.uid

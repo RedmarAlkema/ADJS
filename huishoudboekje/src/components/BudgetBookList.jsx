@@ -1,21 +1,28 @@
 export function BudgetBookList({
+  emptyMessage = 'Maak je eerste huishoudboekje aan.',
   budgetBooks,
+  countLabel = 'actief',
+  isArchive = false,
+  onRestore,
   selectedBook,
   onArchive,
   onEdit,
   onSelect,
+  title = 'Huishoudboekjes',
 }) {
   return (
     <section className="panel list-panel" aria-labelledby="books-title">
       <div className="section-heading">
         <div>
-          <h2 id="books-title">Huishoudboekjes</h2>
-          <p>{budgetBooks.length} actief</p>
+          <h2 id="books-title">{title}</h2>
+          <p>
+            {budgetBooks.length} {countLabel}
+          </p>
         </div>
       </div>
 
       {budgetBooks.length === 0 ? (
-        <p className="empty-state">Maak je eerste huishoudboekje aan.</p>
+        <p className="empty-state">{emptyMessage}</p>
       ) : (
         <ul className="book-list">
           {budgetBooks.map((book) => (
@@ -28,20 +35,32 @@ export function BudgetBookList({
                 <span>{book.description || 'Geen omschrijving'}</span>
               </button>
               <div className="row-actions">
-                <button
-                  type="button"
-                  className="ghost-button"
-                  onClick={() => onEdit(book)}
-                >
-                  Bewerk
-                </button>
-                <button
-                  type="button"
-                  className="danger-button"
-                  onClick={() => onArchive(book)}
-                >
-                  Archiveer
-                </button>
+                {isArchive ? (
+                  <button
+                    type="button"
+                    className="ghost-button"
+                    onClick={() => onRestore(book)}
+                  >
+                    Herstel
+                  </button>
+                ) : (
+                  <>
+                    <button
+                      type="button"
+                      className="ghost-button"
+                      onClick={() => onEdit(book)}
+                    >
+                      Bewerk
+                    </button>
+                    <button
+                      type="button"
+                      className="danger-button"
+                      onClick={() => onArchive(book)}
+                    >
+                      Archiveer
+                    </button>
+                  </>
+                )}
               </div>
             </li>
           ))}

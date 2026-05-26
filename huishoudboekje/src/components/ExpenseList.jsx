@@ -1,6 +1,6 @@
 import { formatCurrency, formatDate } from '../utils/formatters'
 
-export function ExpenseList({ expenses, onDelete }) {
+export function ExpenseList({ expenses, onDelete, readOnly = false }) {
   if (expenses.length === 0) {
     return <p className="empty-state">Nog geen uitgaven in dit boekje.</p>
   }
@@ -18,13 +18,15 @@ export function ExpenseList({ expenses, onDelete }) {
           </div>
           <div className="expense-amount">
             <strong>{formatCurrency(expense.amount)}</strong>
-            <button
-              type="button"
-              className="ghost-button"
-              onClick={() => onDelete(expense)}
-            >
-              Verwijder
-            </button>
+            {readOnly ? null : (
+              <button
+                type="button"
+                className="ghost-button"
+                onClick={() => onDelete(expense)}
+              >
+                Verwijder
+              </button>
+            )}
           </div>
         </li>
       ))}

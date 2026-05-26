@@ -27,16 +27,32 @@ const books = [
     ownerId: 'user-1',
   },
 ]
+const archivedBooks = [
+  {
+    id: 'book-3',
+    name: 'Oud boekje',
+    description: 'Gearchiveerd',
+    ownerId: 'user-1',
+    archived: true,
+  },
+]
+
+function mockBudgetBooks(overrides = {}) {
+  useBudgetBooks.mockReturnValue({
+    archiveBook: vi.fn(),
+    archivedBooks: [],
+    budgetBooks: books,
+    error: '',
+    loading: false,
+    restoreBook: vi.fn(),
+    saveBudgetBook: vi.fn(),
+    ...overrides,
+  })
+}
 
 describe('DashboardPage page', () => {
   it('toont de eerste beschikbare boekselectie', () => {
-    useBudgetBooks.mockReturnValue({
-      archiveBook: vi.fn(),
-      budgetBooks: books,
-      error: '',
-      loading: false,
-      saveBudgetBook: vi.fn(),
-    })
+    mockBudgetBooks()
 
     render(<DashboardPage user={{ uid: 'user-1' }} onSignOut={vi.fn()} />)
 
@@ -45,13 +61,7 @@ describe('DashboardPage page', () => {
 
   it('kan een boek selecteren en archiveren', async () => {
     const archiveBook = vi.fn().mockResolvedValue()
-    useBudgetBooks.mockReturnValue({
-      archiveBook,
-      budgetBooks: books,
-      error: '',
-      loading: false,
-      saveBudgetBook: vi.fn(),
-    })
+    mockBudgetBooks({ archiveBook })
 
     render(<DashboardPage user={{ uid: 'user-1' }} onSignOut={vi.fn()} />)
 
@@ -66,12 +76,11 @@ describe('DashboardPage page', () => {
   })
 
   it('toont loading en foutmelding voor huishoudboekjes', () => {
-    useBudgetBooks.mockReturnValue({
-      archiveBook: vi.fn(),
+    mockBudgetBooks({
+      archivedBooks: [],
       budgetBooks: [],
       error: 'Huishoudboekjes laden is mislukt.',
       loading: true,
-      saveBudgetBook: vi.fn(),
     })
 
     render(<DashboardPage user={{ uid: 'user-1' }} onSignOut={vi.fn()} />)
@@ -84,13 +93,7 @@ describe('DashboardPage page', () => {
 
   it('slaat een nieuw boekje op en selecteert het resultaat', async () => {
     const saveBudgetBook = vi.fn().mockResolvedValue('book-2')
-    useBudgetBooks.mockReturnValue({
-      archiveBook: vi.fn(),
-      budgetBooks: books,
-      error: '',
-      loading: false,
-      saveBudgetBook,
-    })
+    mockBudgetBooks({ saveBudgetBook })
 
     render(<DashboardPage user={{ uid: 'user-1' }} onSignOut={vi.fn()} />)
 
@@ -109,13 +112,7 @@ describe('DashboardPage page', () => {
   })
 
   it('zet een boekje in bewerkmodus en kan annuleren', () => {
-    useBudgetBooks.mockReturnValue({
-      archiveBook: vi.fn(),
-      budgetBooks: books,
-      error: '',
-      loading: false,
-      saveBudgetBook: vi.fn(),
-    })
+    mockBudgetBooks()
 
     render(<DashboardPage user={{ uid: 'user-1' }} onSignOut={vi.fn()} />)
 
@@ -128,12 +125,8 @@ describe('DashboardPage page', () => {
   })
 
   it('toont een archiveerfout uit de actie', async () => {
-    useBudgetBooks.mockReturnValue({
+    mockBudgetBooks({
       archiveBook: vi.fn().mockRejectedValue(new Error('Archiveren mislukt.')),
-      budgetBooks: books,
-      error: '',
-      loading: false,
-      saveBudgetBook: vi.fn(),
     })
 
     render(<DashboardPage user={{ uid: 'user-1' }} onSignOut={vi.fn()} />)
@@ -141,5 +134,23 @@ describe('DashboardPage page', () => {
     fireEvent.click(screen.getAllByRole('button', { name: 'Archiveer' })[0])
 
     expect(await screen.findByText('Archiveren mislukt.')).toBeInTheDocument()
+  })
+
+  it('toont het archief en kan een boekje herstellen', async () => {
+    const restoreBook = vi.fn().mockResolvedValue()
+    mockBudgetBooks({ archivedBooks, restoreBook })
+
+    render(<DashboardPage user={{ uid: 'user-1' }} onSignOut={vi.fn()} />)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Archief' }))
+
+    expect(screen.getByText('1 gearchiveerd')).toBeInTheDocument()
+    expect(screen.getByTestId('book-detail')).toHaveTextContent('Oud boekje')
+
+    fireEvent.click(screen.getByRole('button', { name: 'Herstel' }))
+
+    await waitFor(() => {
+      expect(restoreBook).toHaveBeenCalledWith(archivedBooks[0])
+    })
   })
 })

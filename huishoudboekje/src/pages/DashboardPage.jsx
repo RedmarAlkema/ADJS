@@ -7,17 +7,26 @@ import { useBudgetBooks } from '../hooks/useBudgetBooks'
 import { BookDetailPage } from './BookDetailPage'
 
 export function DashboardPage({ user, onSignOut }) {
+  const [bookView, setBookView] = useState('active')
   const [selectedBookId, setSelectedBookId] = useState('')
   const [editingBook, setEditingBook] = useState(null)
   const [actionError, setActionError] = useState('')
-  const { budgetBooks, loading, error, saveBudgetBook, archiveBook } =
-    useBudgetBooks(user)
+  const {
+    archivedBooks,
+    budgetBooks,
+    loading,
+    error,
+    saveBudgetBook,
+    archiveBook,
+    restoreBook,
+  } = useBudgetBooks(user)
+  const visibleBooks = bookView === 'archive' ? archivedBooks : budgetBooks
 
   const selectedBook = useMemo(
-    () => budgetBooks.find((book) => book.id === selectedBookId) ?? null,
-    [budgetBooks, selectedBookId],
+    () => visibleBooks.find((book) => book.id === selectedBookId) ?? null,
+    [visibleBooks, selectedBookId],
   )
-  const visibleBook = selectedBook ?? budgetBooks[0] ?? null
+  const visibleBook = selectedBook ?? visibleBooks[0] ?? null
 
   async function handleSaveBudgetBook(values) {
     setActionError('')
@@ -43,18 +52,58 @@ export function DashboardPage({ user, onSignOut }) {
     }
   }
 
+  async function handleRestore(book) {
+    setActionError('')
+
+    try {
+      await restoreBook(book)
+
+      if (book.id === selectedBookId) {
+        setSelectedBookId('')
+      }
+    } catch (restoreError) {
+      setActionError(restoreError.message)
+    }
+  }
+
+  function handleViewChange(nextView) {
+    setBookView(nextView)
+    setSelectedBookId('')
+    setEditingBook(null)
+    setActionError('')
+  }
+
   return (
     <div className="app-shell">
       <AppHeader user={user} onSignOut={onSignOut} />
 
       <main className="dashboard-grid">
         <aside className="sidebar">
-          <BudgetBookForm
-            key={editingBook?.id ?? 'new-budget-book'}
-            selectedBook={editingBook}
-            onCancel={() => setEditingBook(null)}
-            onSubmit={handleSaveBudgetBook}
-          />
+          {bookView === 'active' ? (
+            <BudgetBookForm
+              key={editingBook?.id ?? 'new-budget-book'}
+              selectedBook={editingBook}
+              onCancel={() => setEditingBook(null)}
+              onSubmit={handleSaveBudgetBook}
+            />
+          ) : null}
+
+          <div className="panel view-tabs" aria-label="Boekjes weergave">
+            <button
+              type="button"
+              className={bookView === 'active' ? 'selected' : ''}
+              onClick={() => handleViewChange('active')}
+            >
+              Actief
+            </button>
+            <button
+              type="button"
+              className={bookView === 'archive' ? 'selected' : ''}
+              onClick={() => handleViewChange('archive')}
+            >
+              Archief
+            </button>
+          </div>
 
           <Alert>{error || actionError}</Alert>
 
@@ -64,11 +113,20 @@ export function DashboardPage({ user, onSignOut }) {
             </section>
           ) : (
             <BudgetBookList
-              budgetBooks={budgetBooks}
+              budgetBooks={visibleBooks}
+              countLabel={bookView === 'archive' ? 'gearchiveerd' : 'actief'}
+              emptyMessage={
+                bookView === 'archive'
+                  ? 'Je archief is leeg.'
+                  : 'Maak je eerste huishoudboekje aan.'
+              }
+              isArchive={bookView === 'archive'}
               selectedBook={visibleBook}
               onArchive={handleArchive}
               onEdit={setEditingBook}
+              onRestore={handleRestore}
               onSelect={(book) => setSelectedBookId(book.id)}
+              title={bookView === 'archive' ? 'Archief' : 'Huishoudboekjes'}
             />
           )}
         </aside>

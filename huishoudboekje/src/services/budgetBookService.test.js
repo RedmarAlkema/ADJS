@@ -2,7 +2,9 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   archiveBudgetBook,
   createBudgetBook,
+  restoreBudgetBook,
   subscribeToActiveBudgetBooks,
+  subscribeToArchivedBudgetBooks,
   updateBudgetBook,
 } from './budgetBookService'
 
@@ -95,6 +97,20 @@ describe('budgetBookService', () => {
     })
   })
 
+  it('abonneert op gearchiveerde boekjes', () => {
+    const onChange = vi.fn()
+    const onError = vi.fn()
+
+    firestoreMocks.onSnapshot.mockImplementation((query, next) => {
+      next({ docs: [] })
+    })
+
+    subscribeToArchivedBudgetBooks('user-1', onChange, onError)
+
+    expect(firestoreMocks.where).toHaveBeenCalledWith('archived', '==', true)
+    expect(onChange).toHaveBeenCalledWith([])
+  })
+
   it('werkt een bestaand boekje bij', () => {
     updateBudgetBook(
       { id: 'book-1' },
@@ -118,6 +134,18 @@ describe('budgetBookService', () => {
       { collectionName: 'budgetBooks', db: { name: 'db' }, id: 'book-1' },
       {
         archived: true,
+        updatedAt: 'server-time',
+      },
+    )
+  })
+
+  it('herstelt een boekje', () => {
+    restoreBudgetBook({ id: 'book-1' })
+
+    expect(firestoreMocks.updateDoc).toHaveBeenCalledWith(
+      { collectionName: 'budgetBooks', db: { name: 'db' }, id: 'book-1' },
+      {
+        archived: false,
         updatedAt: 'server-time',
       },
     )

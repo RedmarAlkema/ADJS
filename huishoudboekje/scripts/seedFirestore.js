@@ -1,5 +1,9 @@
 import { initializeApp } from 'firebase/app'
-import { getAuth, signInAnonymously } from 'firebase/auth'
+import {
+  getAuth,
+  signInAnonymously,
+  signInWithEmailAndPassword,
+} from 'firebase/auth'
 import {
   addDoc,
   collection,
@@ -78,6 +82,23 @@ const archivedSeedBook = {
   name: 'Oud boekje',
 }
 
+function getArgumentValue(name) {
+  const argument = process.argv.find((value) => value.startsWith(`${name}=`))
+
+  return argument?.slice(name.length + 1) ?? ''
+}
+
+async function signInForSeed(auth) {
+  const email = getArgumentValue('--email')
+  const password = getArgumentValue('--password')
+
+  if (email && password) {
+    return signInWithEmailAndPassword(auth, email, password)
+  }
+
+  return signInAnonymously(auth)
+}
+
 async function createBudgetBook(db, ownerId, book) {
   return addDoc(collection(db, 'budgetBooks'), {
     archived: false,
@@ -106,7 +127,7 @@ async function seedFirestore() {
   const app = initializeApp(firebaseConfig)
   const auth = getAuth(app)
   const db = getFirestore(app)
-  const credentials = await signInAnonymously(auth)
+  const credentials = await signInForSeed(auth)
   const ownerId = credentials.user.uid
 
   for (const book of seedBooks) {
@@ -128,7 +149,7 @@ async function seedFirestore() {
   })
 
   console.log('Seed data toegevoegd.')
-  console.log(`Anonymous test user: ${ownerId}`)
+  console.log(`Seed user: ${ownerId}`)
   console.log('Start de app opnieuw of refresh de browser om de data te zien.')
 }
 

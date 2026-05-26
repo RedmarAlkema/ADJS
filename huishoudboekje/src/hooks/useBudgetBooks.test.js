@@ -3,7 +3,9 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   archiveBudgetBook,
   createBudgetBook,
+  restoreBudgetBook,
   subscribeToActiveBudgetBooks,
+  subscribeToArchivedBudgetBooks,
   updateBudgetBook,
 } from '../services/budgetBookService'
 import { useBudgetBooks } from './useBudgetBooks'
@@ -11,7 +13,9 @@ import { useBudgetBooks } from './useBudgetBooks'
 vi.mock('../services/budgetBookService', () => ({
   archiveBudgetBook: vi.fn(),
   createBudgetBook: vi.fn(),
+  restoreBudgetBook: vi.fn(),
   subscribeToActiveBudgetBooks: vi.fn(),
+  subscribeToArchivedBudgetBooks: vi.fn(),
   updateBudgetBook: vi.fn(),
 }))
 
@@ -21,11 +25,17 @@ const book = { id: 'book-1', name: 'Gezin', ownerId: 'user-1' }
 describe('useBudgetBooks hook', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    subscribeToActiveBudgetBooks.mockReturnValue(vi.fn())
+    subscribeToArchivedBudgetBooks.mockReturnValue(vi.fn())
   })
 
   it('abonneert op actieve boekjes', async () => {
     subscribeToActiveBudgetBooks.mockImplementation((ownerId, onChange) => {
       onChange([book])
+      return vi.fn()
+    })
+    subscribeToArchivedBudgetBooks.mockImplementation((ownerId, onChange) => {
+      onChange([])
       return vi.fn()
     })
 
@@ -40,10 +50,14 @@ describe('useBudgetBooks hook', () => {
       expect.any(Function),
       expect.any(Function),
     )
+    expect(subscribeToArchivedBudgetBooks).toHaveBeenCalledWith(
+      'user-1',
+      expect.any(Function),
+      expect.any(Function),
+    )
   })
 
   it('maakt een nieuw boekje aan', async () => {
-    subscribeToActiveBudgetBooks.mockReturnValue(vi.fn())
     createBudgetBook.mockResolvedValue({ id: 'book-2' })
 
     const { result } = renderHook(() => useBudgetBooks(user))
@@ -61,7 +75,6 @@ describe('useBudgetBooks hook', () => {
   })
 
   it('werkt een eigen boekje bij', async () => {
-    subscribeToActiveBudgetBooks.mockReturnValue(vi.fn())
     updateBudgetBook.mockResolvedValue()
 
     const { result } = renderHook(() => useBudgetBooks(user))
@@ -79,8 +92,6 @@ describe('useBudgetBooks hook', () => {
   })
 
   it('weigert aanpassen van een boekje van iemand anders', async () => {
-    subscribeToActiveBudgetBooks.mockReturnValue(vi.fn())
-
     const { result } = renderHook(() => useBudgetBooks(user))
 
     await act(async () => {
@@ -94,7 +105,6 @@ describe('useBudgetBooks hook', () => {
   })
 
   it('archiveert een eigen boekje', async () => {
-    subscribeToActiveBudgetBooks.mockReturnValue(vi.fn())
     archiveBudgetBook.mockResolvedValue()
 
     const { result } = renderHook(() => useBudgetBooks(user))
@@ -131,7 +141,6 @@ describe('useBudgetBooks hook', () => {
   })
 
   it('toont create- en update-fouten', async () => {
-    subscribeToActiveBudgetBooks.mockReturnValue(vi.fn())
     createBudgetBook.mockRejectedValueOnce(new Error('Create kapot.'))
     updateBudgetBook.mockRejectedValueOnce(new Error('Update kapot.'))
 
@@ -151,8 +160,6 @@ describe('useBudgetBooks hook', () => {
   })
 
   it('weigert archiveren van andermans boekje', async () => {
-    subscribeToActiveBudgetBooks.mockReturnValue(vi.fn())
-
     const { result } = renderHook(() => useBudgetBooks(user))
 
     await act(async () => {
@@ -166,7 +173,6 @@ describe('useBudgetBooks hook', () => {
   })
 
   it('toont archiveerfouten', async () => {
-    subscribeToActiveBudgetBooks.mockReturnValue(vi.fn())
     archiveBudgetBook.mockRejectedValue(new Error('Archiveren kapot.'))
 
     const { result } = renderHook(() => useBudgetBooks(user))
@@ -176,5 +182,17 @@ describe('useBudgetBooks hook', () => {
     })
 
     expect(result.current.error).toBe('Archiveren kapot.')
+  })
+
+  it('herstelt een eigen boekje uit het archief', async () => {
+    restoreBudgetBook.mockResolvedValue()
+
+    const { result } = renderHook(() => useBudgetBooks(user))
+
+    await act(async () => {
+      await result.current.restoreBook({ ...book, archived: true })
+    })
+
+    expect(restoreBudgetBook).toHaveBeenCalledWith({ ...book, archived: true })
   })
 })

@@ -41,7 +41,13 @@ export function BookDetailPage({ book, user }) {
       <SummaryCards expenses={expenses} />
       <Alert>{error}</Alert>
 
-      <ExpenseForm disabled={loading} onSubmit={addExpense} />
+      {book.archived ? (
+        <p className="archive-notice">
+          Dit huishoudboekje staat in het archief en is alleen-lezen.
+        </p>
+      ) : (
+        <ExpenseForm disabled={loading} onSubmit={addExpense} />
+      )}
 
       <div className="section-heading compact-heading">
         <h2>Uitgaven</h2>
@@ -62,7 +68,11 @@ export function BookDetailPage({ book, user }) {
       {loading ? (
         <p className="empty-state">Uitgaven laden...</p>
       ) : (
-        <ExpenseList expenses={filteredExpenses} onDelete={removeExpense} />
+        <ExpenseList
+          expenses={filteredExpenses}
+          onDelete={removeExpense}
+          readOnly={book.archived}
+        />
       )}
     </section>
   )
