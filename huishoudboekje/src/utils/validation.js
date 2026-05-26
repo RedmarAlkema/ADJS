@@ -14,6 +14,22 @@ export function validateBudgetBook(values) {
   return ''
 }
 
+export function validateEmailLogin(values) {
+  if (!values.email.trim()) {
+    return 'Vul je e-mailadres in.'
+  }
+
+  if (!values.password) {
+    return 'Vul je wachtwoord in.'
+  }
+
+  if (values.password.length < 6) {
+    return 'Gebruik minimaal 6 tekens voor je wachtwoord.'
+  }
+
+  return ''
+}
+
 export function validateExpense(values) {
   if (!values.title.trim()) {
     return 'Vul een omschrijving in.'

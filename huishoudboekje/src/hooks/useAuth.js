@@ -1,6 +1,12 @@
 import { useEffect, useState } from 'react'
-import { signInAsGuest, signOut, subscribeToAuth } from '../services/authService'
-import { getErrorMessage } from '../utils/validation'
+import {
+  registerWithEmail,
+  signInAsGuest,
+  signInWithEmail,
+  signOut,
+  subscribeToAuth,
+} from '../services/authService'
+import { getErrorMessage, validateEmailLogin } from '../utils/validation'
 
 export function useAuth() {
   const [user, setUser] = useState(null)
@@ -14,13 +20,49 @@ export function useAuth() {
     })
   }, [])
 
-  async function login() {
+  async function loginAsGuest() {
     setError('')
 
     try {
       await signInAsGuest()
     } catch (firebaseError) {
       setError(getErrorMessage(firebaseError, 'Inloggen is mislukt.'))
+    }
+  }
+
+  async function loginWithEmail(values) {
+    setError('')
+
+    const validationError = validateEmailLogin(values)
+    if (validationError) {
+      setError(validationError)
+      throw new Error(validationError)
+    }
+
+    try {
+      await signInWithEmail(values.email.trim(), values.password)
+    } catch (firebaseError) {
+      const message = getErrorMessage(firebaseError, 'Inloggen is mislukt.')
+      setError(message)
+      throw new Error(message, { cause: firebaseError })
+    }
+  }
+
+  async function register(values) {
+    setError('')
+
+    const validationError = validateEmailLogin(values)
+    if (validationError) {
+      setError(validationError)
+      throw new Error(validationError)
+    }
+
+    try {
+      await registerWithEmail(values.email.trim(), values.password)
+    } catch (firebaseError) {
+      const message = getErrorMessage(firebaseError, 'Account maken is mislukt.')
+      setError(message)
+      throw new Error(message, { cause: firebaseError })
     }
   }
 
@@ -38,7 +80,9 @@ export function useAuth() {
     user,
     loading,
     error,
-    login,
+    loginAsGuest,
+    loginWithEmail,
     logout,
+    register,
   }
 }

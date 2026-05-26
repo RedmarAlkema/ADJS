@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   getErrorMessage,
   validateBudgetBook,
+  validateEmailLogin,
   validateExpense,
 } from './validation'
 
@@ -14,6 +15,33 @@ describe('validation', () => {
 
   it('accepteert een huishoudboekje met naam', () => {
     expect(validateBudgetBook({ name: 'Gezin' })).toBe('')
+  })
+
+  it('keurt e-mail login zonder e-mail af', () => {
+    expect(validateEmailLogin({ email: '', password: 'geheim123' })).toBe(
+      'Vul je e-mailadres in.',
+    )
+  })
+
+  it('keurt e-mail login zonder wachtwoord af', () => {
+    expect(validateEmailLogin({ email: 'test@example.com', password: '' })).toBe(
+      'Vul je wachtwoord in.',
+    )
+  })
+
+  it('keurt een te kort wachtwoord af', () => {
+    expect(validateEmailLogin({ email: 'test@example.com', password: '123' })).toBe(
+      'Gebruik minimaal 6 tekens voor je wachtwoord.',
+    )
+  })
+
+  it('accepteert geldige e-mail login invoer', () => {
+    expect(
+      validateEmailLogin({
+        email: 'test@example.com',
+        password: 'geheim123',
+      }),
+    ).toBe('')
   })
 
   it('keurt een uitgave zonder omschrijving af', () => {

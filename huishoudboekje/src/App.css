@@ -16,6 +16,53 @@
   box-shadow: var(--shadow);
 }
 
+.auth-tabs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  padding: 4px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+}
+
+.auth-tabs button {
+  min-height: 40px;
+  color: var(--text-strong);
+  background: transparent;
+}
+
+.auth-tabs button.selected {
+  color: #ffffff;
+  background: var(--accent);
+}
+
+.auth-form {
+  gap: 12px;
+}
+
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--muted);
+  font-size: 0.84rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  content: "";
+  height: 1px;
+  flex: 1;
+  background: var(--border);
+}
+
+.guest-login-button {
+  min-height: 44px;
+}
+
 .app-shell {
   min-height: 100svh;
   display: flex;
