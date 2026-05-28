@@ -6,6 +6,7 @@ import {
   onSnapshot,
   query,
   serverTimestamp,
+  updateDoc,
   where,
 } from 'firebase/firestore'
 import { db } from './firebase'
@@ -28,11 +29,10 @@ function mapExpense(documentSnapshot) {
   }
 }
 
-export function subscribeToExpenses(bookId, ownerId, onChange, onError) {
+export function subscribeToExpenses(bookId, onChange, onError) {
   const expensesQuery = query(
     expensesCollection,
     where('budgetBookId', '==', bookId),
-    where('ownerId', '==', ownerId),
   )
 
   return onSnapshot(
@@ -62,4 +62,10 @@ export function createExpense(book, ownerId, values) {
 
 export function deleteExpense(expense) {
   return deleteDoc(doc(db, 'expenses', expense.id))
+}
+
+export function updateExpenseCategory(expense, category) {
+  return updateDoc(doc(db, 'expenses', expense.id), {
+    category,
+  })
 }

@@ -8,6 +8,7 @@ export default defineConfig({
     coverage: {
       exclude: [
         'src/main.jsx',
+        'src/services/firebaseConfig.js',
         'src/services/firebase.js',
         'src/test/**',
         'src/**/*.test.{js,jsx}',

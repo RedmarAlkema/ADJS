@@ -3,7 +3,9 @@ import {
   createExpense,
   deleteExpense,
   subscribeToExpenses,
+  updateExpenseCategory,
 } from '../services/expenseService'
+import { expenseCategories } from '../utils/categories'
 import { getErrorMessage, validateExpense } from '../utils/validation'
 
 export function useExpenses(book, user) {
@@ -18,7 +20,6 @@ export function useExpenses(book, user) {
 
     return subscribeToExpenses(
       book.id,
-      user.uid,
       (nextExpenses) => {
         setExpenses(nextExpenses)
         setLoading(false)
@@ -75,11 +76,34 @@ export function useExpenses(book, user) {
     }
   }
 
+  async function changeExpenseCategory(expense, category) {
+    setError('')
+
+    if (!user || expense.ownerId !== user.uid) {
+      setError('Je kunt alleen je eigen uitgaven aanpassen.')
+      return
+    }
+
+    if (!expenseCategories.includes(category)) {
+      setError('Kies een geldige categorie.')
+      return
+    }
+
+    try {
+      await updateExpenseCategory(expense, category)
+    } catch (firebaseError) {
+      setError(
+        getErrorMessage(firebaseError, 'Categorie aanpassen is mislukt.'),
+      )
+    }
+  }
+
   return {
     expenses: book && user ? expenses : [],
     loading: Boolean(book && user) && loading,
     error,
     addExpense,
     removeExpense,
+    changeExpenseCategory,
   }
 }

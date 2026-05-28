@@ -10,8 +10,28 @@ service cloud.firestore {
       return signedIn() && data.ownerId == request.auth.uid;
     }
 
+    function participates(bookId) {
+      return signedIn()
+        && request.auth.token.email != null
+        && exists(/databases/$(database)/documents/budgetBooks/$(bookId)/participants/$(request.auth.token.email));
+    }
+
+    function canOpenBudgetBook(data, bookId) {
+      return owns(data) || participates(bookId);
+    }
+
+    function canOpenExpense(data) {
+      let book = get(/databases/$(database)/documents/budgetBooks/$(data.budgetBookId)).data;
+      return book.archived == false && (owns(data) || canOpenBudgetBook(book, data.budgetBookId));
+    }
+
+    function isOpenOwnedBudgetBook(budgetBookId) {
+      let book = get(/databases/$(database)/documents/budgetBooks/$(budgetBookId)).data;
+      return book.archived == false && book.ownerId == request.auth.uid;
+    }
+
     match /budgetBooks/{bookId} {
-      allow read: if owns(resource.data);
+      allow read: if canOpenBudgetBook(resource.data, bookId);
 
       allow create: if signedIn()
         && request.resource.data.ownerId == request.auth.uid
@@ -26,21 +46,46 @@ service cloud.firestore {
         && request.resource.data.archived is bool;
 
       allow delete: if false;
+
+      match /participants/{email} {
+        allow read: if signedIn()
+          && (get(/databases/$(database)/documents/budgetBooks/$(bookId)).data.ownerId == request.auth.uid
+            || resource.data.email == request.auth.token.email);
+
+        allow create, update: if signedIn()
+          && get(/databases/$(database)/documents/budgetBooks/$(bookId)).data.ownerId == request.auth.uid
+          && request.resource.data.budgetBookId == bookId
+          && request.resource.data.ownerId == request.auth.uid
+          && request.resource.data.email == email;
+
+        allow delete: if false;
+      }
+    }
+
+    match /{path=**}/participants/{email} {
+      allow read: if signedIn()
+        && (resource.data.ownerId == request.auth.uid
+          || resource.data.email == request.auth.token.email);
     }
 
     match /expenses/{expenseId} {
-      allow read: if owns(resource.data);
+      allow read: if canOpenExpense(resource.data);
 
       allow create: if signedIn()
         && request.resource.data.ownerId == request.auth.uid
         && request.resource.data.budgetBookId is string
+        && isOpenOwnedBudgetBook(request.resource.data.budgetBookId)
         && request.resource.data.title is string
         && request.resource.data.title.size() > 0
         && request.resource.data.amount is number
         && request.resource.data.amount > 0;
 
-      allow update: if false;
-      allow delete: if owns(resource.data);
+      allow update: if owns(resource.data)
+        && isOpenOwnedBudgetBook(resource.data.budgetBookId)
+        && request.resource.data.diff(resource.data).changedKeys().hasOnly(['category'])
+        && request.resource.data.category is string;
+      allow delete: if owns(resource.data)
+        && isOpenOwnedBudgetBook(resource.data.budgetBookId);
     }
   }
 }

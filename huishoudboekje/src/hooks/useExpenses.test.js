@@ -4,6 +4,7 @@ import {
   createExpense,
   deleteExpense,
   subscribeToExpenses,
+  updateExpenseCategory,
 } from '../services/expenseService'
 import { useExpenses } from './useExpenses'
 
@@ -11,6 +12,7 @@ vi.mock('../services/expenseService', () => ({
   createExpense: vi.fn(),
   deleteExpense: vi.fn(),
   subscribeToExpenses: vi.fn(),
+  updateExpenseCategory: vi.fn(),
 }))
 
 const book = { id: 'book-1' }
@@ -28,7 +30,7 @@ describe('useExpenses hook', () => {
   })
 
   it('abonneert op uitgaven voor boek en gebruiker', async () => {
-    subscribeToExpenses.mockImplementation((bookId, ownerId, onChange) => {
+    subscribeToExpenses.mockImplementation((bookId, onChange) => {
       onChange([expense])
       return vi.fn()
     })
@@ -105,7 +107,7 @@ describe('useExpenses hook', () => {
   })
 
   it('toont laadfout vanuit de subscription', async () => {
-    subscribeToExpenses.mockImplementation((bookId, ownerId, onChange, onError) => {
+    subscribeToExpenses.mockImplementation((bookId, onChange, onError) => {
       onError(new Error('Geen uitgaven.'))
       return vi.fn()
     })
@@ -151,5 +153,18 @@ describe('useExpenses hook', () => {
     })
 
     expect(result.current.error).toBe('Delete kapot.')
+  })
+
+  it('past een categorie aan via drag-and-drop actie', async () => {
+    subscribeToExpenses.mockReturnValue(vi.fn())
+    updateExpenseCategory.mockResolvedValue()
+
+    const { result } = renderHook(() => useExpenses(book, user))
+
+    await act(async () => {
+      await result.current.changeExpenseCategory(expense, 'Wonen')
+    })
+
+    expect(updateExpenseCategory).toHaveBeenCalledWith(expense, 'Wonen')
   })
 })

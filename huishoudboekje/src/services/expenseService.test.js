@@ -3,6 +3,7 @@ import {
   createExpense,
   deleteExpense,
   subscribeToExpenses,
+  updateExpenseCategory,
 } from './expenseService'
 
 const firestoreMocks = vi.hoisted(() => ({
@@ -13,6 +14,7 @@ const firestoreMocks = vi.hoisted(() => ({
   onSnapshot: vi.fn(),
   query: vi.fn((...parts) => ({ parts })),
   serverTimestamp: vi.fn(() => 'server-time'),
+  updateDoc: vi.fn(),
   where: vi.fn((field, operator, value) => ({ field, operator, value })),
 }))
 
@@ -65,14 +67,13 @@ describe('expenseService', () => {
       })
     })
 
-    subscribeToExpenses('book-1', 'user-1', onChange, onError)
+    subscribeToExpenses('book-1', onChange, onError)
 
     expect(firestoreMocks.where).toHaveBeenCalledWith(
       'budgetBookId',
       '==',
       'book-1',
     )
-    expect(firestoreMocks.where).toHaveBeenCalledWith('ownerId', '==', 'user-1')
     expect(onChange).toHaveBeenCalledWith([
       expect.objectContaining({ amount: 12.5, id: 'new', title: 'Lunch' }),
       expect.objectContaining({ amount: 8, id: 'old', note: '' }),
@@ -113,5 +114,14 @@ describe('expenseService', () => {
       db: { name: 'db' },
       id: 'expense-1',
     })
+  })
+
+  it('past de categorie van een uitgave aan', () => {
+    updateExpenseCategory({ id: 'expense-1' }, 'Wonen')
+
+    expect(firestoreMocks.updateDoc).toHaveBeenCalledWith(
+      { collectionName: 'expenses', db: { name: 'db' }, id: 'expense-1' },
+      { category: 'Wonen' },
+    )
   })
 })

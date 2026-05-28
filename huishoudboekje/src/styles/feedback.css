@@ -1,0 +1,33 @@
+.empty-state {
+  color: var(--muted);
+  padding: 20px;
+  text-align: center;
+}
+
+.alert,
+.field-error,
+.archive-notice {
+  margin: 0;
+  border-radius: 6px;
+}
+
+.alert,
+.field-error {
+  color: var(--danger);
+  background: var(--danger-soft);
+}
+
+.alert {
+  padding: 12px;
+}
+
+.archive-notice {
+  padding: 12px;
+  color: var(--text-strong);
+  background: var(--soft);
+}
+
+.field-error {
+  padding: 10px;
+  font-size: 0.9rem;
+}

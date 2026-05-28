@@ -19,6 +19,7 @@ export function DashboardPage({ user, onSignOut }) {
     saveBudgetBook,
     archiveBook,
     restoreBook,
+    addParticipant,
   } = useBudgetBooks(user)
   const visibleBooks = bookView === 'archive' ? archivedBooks : budgetBooks
 
@@ -115,6 +116,7 @@ export function DashboardPage({ user, onSignOut }) {
             <BudgetBookList
               budgetBooks={visibleBooks}
               countLabel={bookView === 'archive' ? 'gearchiveerd' : 'actief'}
+              currentUserId={user.uid}
               emptyMessage={
                 bookView === 'archive'
                   ? 'Je archief is leeg.'
@@ -131,7 +133,11 @@ export function DashboardPage({ user, onSignOut }) {
           )}
         </aside>
 
-        <BookDetailPage book={visibleBook} user={user} />
+        <BookDetailPage
+          book={visibleBook}
+          user={user}
+          onAddParticipant={addParticipant}
+        />
       </main>
     </div>
   )

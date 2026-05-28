@@ -1,4 +1,5 @@
 export function BudgetBookList({
+  currentUserId,
   emptyMessage = 'Maak je eerste huishoudboekje aan.',
   budgetBooks,
   countLabel = 'actief',
@@ -26,16 +27,16 @@ export function BudgetBookList({
       ) : (
         <ul className="book-list">
           {budgetBooks.map((book) => (
-            <li
-              key={book.id}
-              className={selectedBook?.id === book.id ? 'selected' : ''}
-            >
+            <li key={book.id} className={selectedBook?.id === book.id ? 'selected' : ''}>
               <button type="button" onClick={() => onSelect(book)}>
                 <strong>{book.name}</strong>
                 <span>{book.description || 'Geen omschrijving'}</span>
+                {book.ownerId !== currentUserId ? (
+                  <small>Gedeeld met jou</small>
+                ) : null}
               </button>
               <div className="row-actions">
-                {isArchive ? (
+                {book.ownerId !== currentUserId ? null : isArchive ? (
                   <button
                     type="button"
                     className="ghost-button"

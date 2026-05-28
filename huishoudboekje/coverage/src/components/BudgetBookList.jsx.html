@@ -25,28 +25,28 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>5/5</span>
+                <span class='fraction'>6/6</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">87.5% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>6/6</span>
+                <span class='fraction'>14/16</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>5/5</span>
+                <span class='fraction'>6/6</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>5/5</span>
+                <span class='fraction'>6/6</span>
             </div>
         
             
@@ -115,14 +115,40 @@
 <a name='L50'></a><a href='#L50'>50</a>
 <a name='L51'></a><a href='#L51'>51</a>
 <a name='L52'></a><a href='#L52'>52</a>
-<a name='L53'></a><a href='#L53'>53</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L53'></a><a href='#L53'>53</a>
+<a name='L54'></a><a href='#L54'>54</a>
+<a name='L55'></a><a href='#L55'>55</a>
+<a name='L56'></a><a href='#L56'>56</a>
+<a name='L57'></a><a href='#L57'>57</a>
+<a name='L58'></a><a href='#L58'>58</a>
+<a name='L59'></a><a href='#L59'>59</a>
+<a name='L60'></a><a href='#L60'>60</a>
+<a name='L61'></a><a href='#L61'>61</a>
+<a name='L62'></a><a href='#L62'>62</a>
+<a name='L63'></a><a href='#L63'>63</a>
+<a name='L64'></a><a href='#L64'>64</a>
+<a name='L65'></a><a href='#L65'>65</a>
+<a name='L66'></a><a href='#L66'>66</a>
+<a name='L67'></a><a href='#L67'>67</a>
+<a name='L68'></a><a href='#L68'>68</a>
+<a name='L69'></a><a href='#L69'>69</a>
+<a name='L70'></a><a href='#L70'>70</a>
+<a name='L71'></a><a href='#L71'>71</a>
+<a name='L72'></a><a href='#L72'>72</a>
+<a name='L73'></a><a href='#L73'>73</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">14x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">16x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -136,11 +162,23 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">26x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">29x</span>
 <span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -167,50 +205,72 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">export function BudgetBookList({
+  currentUserId,
+  emptyMessage = 'Maak je eerste huishoudboekje aan.',
   budgetBooks,
+  countLabel = 'actief',
+  isArchive = false,
+  onRestore,
   selectedBook,
   onArchive,
   onEdit,
   onSelect,
+  title = 'Huishoudboekjes',
 }) {
   return (
     &lt;section className="panel list-panel" aria-labelledby="books-title"&gt;
       &lt;div className="section-heading"&gt;
         &lt;div&gt;
-          &lt;h2 id="books-title"&gt;Huishoudboekjes&lt;/h2&gt;
-          &lt;p&gt;{budgetBooks.length} actief&lt;/p&gt;
+          &lt;h2 id="books-title"&gt;{title}&lt;/h2&gt;
+          &lt;p&gt;
+            {budgetBooks.length} {countLabel}
+          &lt;/p&gt;
         &lt;/div&gt;
       &lt;/div&gt;
 &nbsp;
       {budgetBooks.length === 0 ? (
-        &lt;p className="empty-state"&gt;Maak je eerste huishoudboekje aan.&lt;/p&gt;
+        &lt;p className="empty-state"&gt;{emptyMessage}&lt;/p&gt;
       ) : (
         &lt;ul className="book-list"&gt;
           {budgetBooks.map((book) =&gt; (
-            &lt;li
-              key={book.id}
-              className={selectedBook?.id === book.id ? 'selected' : ''}
-            &gt;
+            &lt;li key={book.id} className={selectedBook?.id === book.id ? 'selected' : ''}&gt;
               &lt;button type="button" onClick={() =&gt; onSelect(book)}&gt;
                 &lt;strong&gt;{book.name}&lt;/strong&gt;
                 &lt;span&gt;{book.description || 'Geen omschrijving'}&lt;/span&gt;
+                {book.ownerId !== currentUserId ? (
+<span class="branch-0 cbranch-no" title="branch not covered" >                  &lt;small&gt;Gedeeld met jou&lt;/small&gt;</span>
+                ) : null}
               &lt;/button&gt;
               &lt;div className="row-actions"&gt;
-                &lt;button
-                  type="button"
-                  className="ghost-button"
-                  onClick={() =&gt; onEdit(book)}
-                &gt;
-                  Bewerk
-                &lt;/button&gt;
-                &lt;button
-                  type="button"
-                  className="danger-button"
-                  onClick={() =&gt; onArchive(book)}
-                &gt;
-                  Archiveer
-                &lt;/button&gt;
+                {book.ownerId !== currentUserId ? <span class="branch-0 cbranch-no" title="branch not covered" >null : i</span>sArchive ? (
+                  &lt;button
+                    type="button"
+                    className="ghost-button"
+                    onClick={() =&gt; onRestore(book)}
+                  &gt;
+                    Herstel
+                  &lt;/button&gt;
+                ) : (
+                  &lt;&gt;
+                    &lt;button
+                      type="button"
+                      className="ghost-button"
+                      onClick={() =&gt; onEdit(book)}
+                    &gt;
+                      Bewerk
+                    &lt;/button&gt;
+                    &lt;button
+                      type="button"
+                      className="danger-button"
+                      onClick={() =&gt; onArchive(book)}
+                    &gt;
+                      Archiveer
+                    &lt;/button&gt;
+                  &lt;/&gt;
+                )}
               &lt;/div&gt;
             &lt;/li&gt;
           ))}
@@ -226,7 +286,7 @@
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-05-26T12:34:39.476Z
+                at 2026-05-26T14:52:43.178Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

@@ -1,0 +1,37 @@
+.category-drop-board {
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+}
+
+.category-drop-board h2 {
+  margin: 0;
+}
+
+.category-drop-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.drop-card {
+  display: grid;
+  gap: 6px;
+  min-height: 76px;
+  padding: 12px;
+  border: 1px dashed var(--accent);
+  border-radius: 8px;
+  background: var(--surface);
+}
+
+.drop-card.disabled {
+  border-color: var(--border);
+  opacity: 0.72;
+}
+
+.drop-card span {
+  color: var(--muted);
+}

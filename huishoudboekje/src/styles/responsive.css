@@ -1,0 +1,43 @@
+@media (max-width: 1050px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .form-grid,
+  .summary-grid,
+  .charts-grid,
+  .category-drop-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 680px) {
+  .app-header,
+  .section-heading,
+  .expense-list li {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .app-header,
+  .dashboard-grid {
+    padding: 18px;
+  }
+
+  .form-grid,
+  .summary-grid,
+  .charts-grid,
+  .category-drop-grid,
+  .participant-form {
+    grid-template-columns: 1fr;
+  }
+
+  .user-menu {
+    justify-content: space-between;
+  }
+
+  .expense-amount {
+    justify-items: start;
+    white-space: normal;
+  }
+}

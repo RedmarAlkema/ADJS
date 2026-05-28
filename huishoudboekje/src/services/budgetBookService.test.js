@@ -12,6 +12,7 @@ const firestoreMocks = vi.hoisted(() => ({
   addDoc: vi.fn(),
   collection: vi.fn((db, name) => ({ db, name })),
   doc: vi.fn((db, collectionName, id) => ({ collectionName, db, id })),
+  documentId: vi.fn(() => '__name__'),
   onSnapshot: vi.fn(),
   query: vi.fn((...parts) => ({ parts })),
   serverTimestamp: vi.fn(() => 'server-time'),
@@ -150,4 +151,5 @@ describe('budgetBookService', () => {
       },
     )
   })
+
 })

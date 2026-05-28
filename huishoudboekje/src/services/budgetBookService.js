@@ -2,6 +2,7 @@ import {
   addDoc,
   collection,
   doc,
+  documentId,
   onSnapshot,
   query,
   serverTimestamp,
@@ -38,6 +39,30 @@ function subscribeToBudgetBooks(ownerId, archived, onChange, onError) {
   const booksQuery = query(
     budgetBooksCollection,
     where('ownerId', '==', ownerId),
+    where('archived', '==', archived),
+  )
+
+  return onSnapshot(
+    booksQuery,
+    (snapshot) =>
+      onChange(
+        snapshot.docs
+          .map(mapBudgetBook)
+          .sort((first, second) => second.createdAt - first.createdAt),
+      ),
+    onError,
+  )
+}
+
+export function subscribeToBudgetBooksByIds(ids, archived, onChange, onError) {
+  if (ids.length === 0) {
+    onChange([])
+    return () => {}
+  }
+
+  const booksQuery = query(
+    budgetBooksCollection,
+    where(documentId(), 'in', ids.slice(0, 30)),
     where('archived', '==', archived),
   )
 

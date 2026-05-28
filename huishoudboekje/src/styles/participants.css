@@ -1,0 +1,46 @@
+.participants-panel {
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+}
+
+.participants-panel h2 {
+  margin: 0;
+}
+
+.participants-panel .section-heading span,
+.muted-text {
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.participant-list {
+  display: grid;
+  gap: 8px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.participant-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  background: var(--soft);
+}
+
+.participant-form {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  align-items: end;
+}
+
+.participant-form .field-error {
+  grid-column: 1 / -1;
+}

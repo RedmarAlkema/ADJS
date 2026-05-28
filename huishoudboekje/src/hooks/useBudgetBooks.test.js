@@ -8,6 +8,7 @@ import {
   subscribeToArchivedBudgetBooks,
   updateBudgetBook,
 } from '../services/budgetBookService'
+import { addBudgetBookParticipant } from '../services/participantService'
 import { useBudgetBooks } from './useBudgetBooks'
 
 vi.mock('../services/budgetBookService', () => ({
@@ -17,6 +18,10 @@ vi.mock('../services/budgetBookService', () => ({
   subscribeToActiveBudgetBooks: vi.fn(),
   subscribeToArchivedBudgetBooks: vi.fn(),
   updateBudgetBook: vi.fn(),
+}))
+
+vi.mock('../services/participantService', () => ({
+  addBudgetBookParticipant: vi.fn(),
 }))
 
 const user = { uid: 'user-1' }
@@ -194,5 +199,20 @@ describe('useBudgetBooks hook', () => {
     })
 
     expect(restoreBudgetBook).toHaveBeenCalledWith({ ...book, archived: true })
+  })
+
+  it('voegt een deelnemer toe aan een eigen boekje', async () => {
+    addBudgetBookParticipant.mockResolvedValue()
+
+    const { result } = renderHook(() => useBudgetBooks(user))
+
+    await act(async () => {
+      await result.current.addParticipant(book, 'deelnemer@example.com')
+    })
+
+    expect(addBudgetBookParticipant).toHaveBeenCalledWith(
+      book,
+      'deelnemer@example.com',
+    )
   })
 })

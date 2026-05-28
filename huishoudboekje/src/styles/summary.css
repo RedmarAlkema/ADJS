@@ -1,0 +1,24 @@
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.summary-grid article {
+  display: grid;
+  gap: 6px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--soft);
+}
+
+.summary-grid span {
+  color: var(--muted);
+  font-size: 0.84rem;
+}
+
+.summary-grid strong {
+  color: var(--text-strong);
+  font-size: 1.25rem;
+}

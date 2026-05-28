@@ -1,72 +1,16 @@
-import { useEffect, useState } from 'react'
 import {
   archiveBudgetBook,
   createBudgetBook,
-  subscribeToActiveBudgetBooks,
-  subscribeToArchivedBudgetBooks,
   restoreBudgetBook,
   updateBudgetBook,
 } from '../services/budgetBookService'
+import { addBudgetBookParticipant } from '../services/participantService'
 import { getErrorMessage, validateBudgetBook } from '../utils/validation'
+import { useBudgetBookSubscriptions } from './useBudgetBookSubscriptions'
 
 export function useBudgetBooks(user) {
-  const [budgetBooks, setBudgetBooks] = useState([])
-  const [archivedBooks, setArchivedBooks] = useState([])
-  const [loading, setLoading] = useState(Boolean(user))
-  const [error, setError] = useState('')
-
-  useEffect(() => {
-    if (!user) {
-      return undefined
-    }
-
-    let activeLoaded = false
-    let archiveLoaded = false
-
-    function finishLoading() {
-      if (activeLoaded && archiveLoaded) {
-        setLoading(false)
-      }
-    }
-
-    const unsubscribeActiveBooks = subscribeToActiveBudgetBooks(
-      user.uid,
-      (books) => {
-        setBudgetBooks(books)
-        activeLoaded = true
-        finishLoading()
-      },
-      (firebaseError) => {
-        setError(
-          getErrorMessage(
-            firebaseError,
-            'Huishoudboekjes laden is mislukt.',
-          ),
-        )
-        setLoading(false)
-      },
-    )
-
-    const unsubscribeArchivedBooks = subscribeToArchivedBudgetBooks(
-      user.uid,
-      (books) => {
-        setArchivedBooks(books)
-        archiveLoaded = true
-        finishLoading()
-      },
-      (firebaseError) => {
-        setError(
-          getErrorMessage(firebaseError, 'Archief laden is mislukt.'),
-        )
-        setLoading(false)
-      },
-    )
-
-    return () => {
-      unsubscribeActiveBooks()
-      unsubscribeArchivedBooks()
-    }
-  }, [user])
+  const { archivedBooks, budgetBooks, error, loading, setError } =
+    useBudgetBookSubscriptions(user)
 
   async function saveBudgetBook(values, selectedBook) {
     setError('')
@@ -151,6 +95,33 @@ export function useBudgetBooks(user) {
     }
   }
 
+  async function addParticipant(book, email) {
+    setError('')
+
+    if (!user || book.ownerId !== user.uid) {
+      const message = 'Alleen de eigenaar kan deelnemers toevoegen.'
+      setError(message)
+      throw new Error(message)
+    }
+
+    if (!email.trim()) {
+      const message = 'Vul een e-mailadres in.'
+      setError(message)
+      throw new Error(message)
+    }
+
+    try {
+      await addBudgetBookParticipant(book, email)
+    } catch (firebaseError) {
+      const message = getErrorMessage(
+        firebaseError,
+        'Deelnemer toevoegen is mislukt.',
+      )
+      setError(message)
+      throw new Error(message, { cause: firebaseError })
+    }
+  }
+
   return {
     budgetBooks: user ? budgetBooks : [],
     archivedBooks: user ? archivedBooks : [],
@@ -159,5 +130,6 @@ export function useBudgetBooks(user) {
     saveBudgetBook,
     archiveBook,
     restoreBook,
+    addParticipant,
   }
 }

@@ -8,7 +8,13 @@ export function ExpenseList({ expenses, onDelete, readOnly = false }) {
   return (
     <ul className="expense-list">
       {expenses.map((expense) => (
-        <li key={expense.id}>
+        <li
+          key={expense.id}
+          draggable={!readOnly}
+          onDragStart={(event) =>
+            event.dataTransfer.setData('text/plain', expense.id)
+          }
+        >
           <div>
             <strong>{expense.title}</strong>
             <span>

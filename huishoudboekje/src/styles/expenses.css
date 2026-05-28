@@ -1,0 +1,16 @@
+.expense-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 14px;
+}
+
+.expense-list li > div {
+  display: grid;
+  gap: 4px;
+}
+
+.expense-amount {
+  justify-items: end;
+  white-space: nowrap;
+}

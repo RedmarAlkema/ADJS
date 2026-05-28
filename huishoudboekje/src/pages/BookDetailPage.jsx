@@ -1,17 +1,28 @@
 import { useMemo, useState } from 'react'
 import { Alert } from '../components/Alert'
+import { CategoryDropBoard } from '../components/CategoryDropBoard'
+import { ExpenseCharts } from '../components/ExpenseCharts'
 import { ExpenseForm } from '../components/ExpenseForm'
 import { ExpenseList } from '../components/ExpenseList'
+import { ParticipantManager } from '../components/ParticipantManager'
 import { SummaryCards } from '../components/SummaryCards'
 import { useExpenses } from '../hooks/useExpenses'
+import { useParticipants } from '../hooks/useParticipants'
 import { expenseCategories } from '../utils/categories'
 
-export function BookDetailPage({ book, user }) {
+export function BookDetailPage({ book, user, onAddParticipant }) {
   const [categoryFilter, setCategoryFilter] = useState('Alle')
-  const { expenses, loading, error, addExpense, removeExpense } = useExpenses(
-    book,
-    user,
-  )
+  const {
+    expenses,
+    loading,
+    error,
+    addExpense,
+    removeExpense,
+    changeExpenseCategory,
+  } = useExpenses(book?.archived ? null : book, user)
+  const isOwner = book?.ownerId === user?.uid
+  const canManageExpenses = isOwner && !book?.archived
+  const { error: participantsError, participants } = useParticipants(book, user)
 
   const filteredExpenses = useMemo(() => {
     if (categoryFilter === 'Alle') {
@@ -29,6 +40,24 @@ export function BookDetailPage({ book, user }) {
     )
   }
 
+  if (book.archived) {
+    return (
+      <section className="panel detail-panel" aria-labelledby="detail-title">
+        <div className="section-heading">
+          <div>
+            <h2 id="detail-title">{book.name}</h2>
+            <p>{book.description || 'Geen omschrijving toegevoegd.'}</p>
+          </div>
+        </div>
+
+        <p className="archive-notice">
+          Dit huishoudboekje staat in het archief. De inhoud is volledig
+          verborgen totdat het boekje wordt hersteld.
+        </p>
+      </section>
+    )
+  }
+
   return (
     <section className="panel detail-panel" aria-labelledby="detail-title">
       <div className="section-heading">
@@ -39,11 +68,26 @@ export function BookDetailPage({ book, user }) {
       </div>
 
       <SummaryCards expenses={expenses} />
-      <Alert>{error}</Alert>
+      <ExpenseCharts expenses={expenses} />
+      <CategoryDropBoard
+        disabled={!canManageExpenses}
+        expenses={expenses}
+        onDropExpense={changeExpenseCategory}
+      />
+      <Alert>{error || participantsError}</Alert>
 
-      {book.archived ? (
+      {isOwner && !book.archived ? (
+        <ParticipantManager
+          book={book}
+          disabled={loading}
+          onAddParticipant={onAddParticipant}
+          participants={participants}
+        />
+      ) : null}
+
+      {!canManageExpenses ? (
         <p className="archive-notice">
-          Dit huishoudboekje staat in het archief en is alleen-lezen.
+          Dit huishoudboekje is met jou gedeeld en is alleen-lezen.
         </p>
       ) : (
         <ExpenseForm disabled={loading} onSubmit={addExpense} />
@@ -71,7 +115,7 @@ export function BookDetailPage({ book, user }) {
         <ExpenseList
           expenses={filteredExpenses}
           onDelete={removeExpense}
-          readOnly={book.archived}
+          readOnly={!canManageExpenses}
         />
       )}
     </section>
